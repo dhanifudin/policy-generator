@@ -1,0 +1,43 @@
+version: "3"
+services:
+  app:
+    container_name: pg-app
+    build: .
+    command: uvicorn main:app --reload
+    volumes:
+      - ./app:/app
+    ports:
+      - 8000:8000
+    restart: always
+    depends_on:
+      - redis
+  redis:
+    container_name: pg-redis
+    image: redis:7-alpine
+  worker:
+    container_name: pg-worker
+    build: .
+    command: celery -A workers.tasks worker --loglevel=INFO
+    volumes:
+      - ./app:/app
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+    depends_on:
+      - app
+      - redis
+  flower:
+    container_name: pg-flower
+    build: .
+    command: celery -A workers.tasks flower --port=5555
+    volumes:
+      - ./app:/app
+    ports:
+      - 5555:5555
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+    depends_on:
+      - app
+      - redis
+      - worker
