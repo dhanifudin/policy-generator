@@ -1,0 +1,67 @@
+from enum import Enum
+from pydantic import BaseModel, Field
+from typing import List
+
+
+class PreferenceType(str, Enum):
+    AVOID = "AVOID"
+    FORBID = "FORBID"
+    PREFER = "PREFER"
+    SHALL = "SHALL"
+
+
+class PlmnID(BaseModel):
+    mcc: str
+    mnc: str
+
+
+class SliceID(BaseModel):
+    plmnId: PlmnID
+    sd: str
+    sst: int
+
+
+class QosID(BaseModel):
+    the5qI: int = Field(alias="5qi")
+    qcI: int
+
+
+class CID(BaseModel):
+    ncI: int
+    ecI: int
+
+
+class CellID(BaseModel):
+    cId: CID
+    plmnId: PlmnID
+
+
+class Scope(BaseModel):
+    cellId: CellID
+    qosId: QosID
+    sliceId: SliceID
+    ueId: str
+
+
+class QosObjectives(BaseModel):
+    gfbr: float
+    mfbr: float
+    pdb: float
+    priorityLevel: float
+
+
+class TSPResource(BaseModel):
+    cellIdList: List[CellID]
+    preference: PreferenceType
+    primary: bool
+
+
+class API(BaseModel):
+    qosObjectives: QosObjectives
+    scope: Scope
+    tspResources: List[TSPResource]
+
+
+def marshalAPI(api: API):
+    json_data = api.json(by_alias=True, exclude_none=True)
+    return json_data
