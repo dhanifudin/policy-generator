@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "O-RAN standard policy status",
+  "type": "object",
+  "properties": {
+    "enforceStatus": {
+      "type": "string",
+      "enum": [
+        "ENFORCED",
+        "NOT_ENFORCED"
+      ]
+    },
+    "enforceReason": {
+      "type": "string",
+      "enum": [
+        "SCOPE_NOT_APPLICABLE",
+        "STATEMENT_NOT_APPLICABLE",
+        "OTHER_REASON"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["enforceStatus"]
+}
